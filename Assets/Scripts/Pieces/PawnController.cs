@@ -27,9 +27,10 @@ public class PawnController : IPiece
         int distanceY = targetPos.y - piece.position.y;
         int directionY = piece.isWhite ? 1 : -1;
         if (!piece.isWhite) distanceY *= -1;
-
-        if (distanceY == 2 && GameController.pieces[targetPos.x, targetPos.y - directionY] != null) return false;
-        if (distanceY == 2 && !piece.hasMoved)
+        
+        Vector2Int oneSquareForward = new Vector2Int(targetPos.x, targetPos.y - directionY);
+        if (distanceY == 2 && GameController.GetPiece(oneSquareForward) != null) return false;
+        if (distanceX == 0 && distanceY == 2 && !piece.hasMoved)
         {
             hasMovedTwiceLastTurn = true;
             return true;
@@ -61,12 +62,13 @@ public class PawnController : IPiece
         int directionX = Mathf.Clamp(targetPos.x - piece.position.x, -1, 1);
         int directionY = piece.isWhite ? 1 : -1;
 
-        PieceController otherPawn = GameController.pieces[piece.position.x + directionX, piece.position.y];
+        Vector2Int otherPawnPosition = new(piece.position.x + directionX, piece.position.y);
+        PieceController otherPawn = GameController.GetPiece(otherPawnPosition);
         if (!piece.isWhite) distanceY *= -1;
         if (deltaDistanceX != 1 || distanceY != 1) return false;
-        if (otherPawn == null || otherPawn.piece.type != PieceType.Pawn) return false;
+        if (otherPawn == null || otherPawn.piece is not PawnController pawnController) return false;
         if (otherPawn.piece.isWhite == piece.isWhite) return false;
-        if ((otherPawn.piece as PawnController).hasMovedTwiceLastTurn == false) return false;
+        if (pawnController.hasMovedTwiceLastTurn == false) return false;
         return true;
     }
 }

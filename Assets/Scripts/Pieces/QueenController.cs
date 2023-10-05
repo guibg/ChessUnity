@@ -26,7 +26,7 @@ public class QueenController : IPiece
         {
             checkPos.x += directionX;
             checkPos.y += directionY;
-            if (GameController.pieces[checkPos.x, checkPos.y] != null) return false;
+            if (GameController.GetPiece(checkPos) != null) return false;
         }
         return true;
     }
@@ -70,7 +70,7 @@ public class QueenController : IPiece
             bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
             if (isOutsideBoard) break;
             attackingSquares.Add(checkPos);
-        } while (GameController.pieces[checkPos.x, checkPos.y] != null);
+        } while (GameController.GetPiece(checkPos) != null);
         return attackingSquares;
     }
     
@@ -85,7 +85,7 @@ public class QueenController : IPiece
             bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
             if (isOutsideBoard) break;
             attackingSquares.Add(checkPos);
-        } while (GameController.pieces[checkPos.x, checkPos.y] != null);
+        } while (GameController.GetPiece(checkPos) != null);
         return attackingSquares;
     }
 }

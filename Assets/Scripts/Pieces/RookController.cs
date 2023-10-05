@@ -23,7 +23,7 @@ public class RookController : IPiece
         {
             checkPos.x += directionX;
             checkPos.y += directionY;
-            if (GameController.pieces[checkPos.x, checkPos.y] != null) return false;
+            if (GameController.GetPiece(checkPos) != null) return false;
         }
         if (distanceX == 0 || distanceY == 0) return true;
         return false;
@@ -49,8 +49,9 @@ public class RookController : IPiece
             checkPos.y += directionY;
             bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
             if (isOutsideBoard) break;
+            Debug.Log(checkPos + " " + (GameController.GetPiece(checkPos) != null));
             attackingSquares.Add(checkPos);
-        } while (GameController.pieces[checkPos.x, checkPos.y] != null);
+        } while (GameController.GetPiece(checkPos) != null);
         return attackingSquares;
     }
 }

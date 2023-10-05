@@ -43,11 +43,12 @@ public class KingController : IPiece
         int distanceY = Mathf.Abs(targetPos.y - king.position.y);
         int directionX = Mathf.Clamp(targetPos.x - king.position.x, -1, 1);
         if (king.hasMoved || rook.hasMoved || distanceY > 0 || distanceX < 2) return false;
-        int checkPos = king.position.x;
+        int checkPosX = king.position.x;
         for (int i = 1; i < distanceToRook; i++)
         {
-            checkPos += directionX;
-            if (GameController.pieces[checkPos, king.position.y] != null) return false;
+            checkPosX += directionX;
+            Vector2Int checkPos = new Vector2Int(checkPosX, king.position.y);
+            if (GameController.GetPiece(checkPos) != null) return false;
         }
         return true;
     }

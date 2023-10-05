@@ -46,7 +46,7 @@ public class KnightController : IPiece
         {
             bool isInsideBoard = pos.x < 8 && pos.y < 8 && pos.x >= 0 && pos.y >= 0;
             if (isInsideBoard) continue;
-            attackingSquares.Remove(pos);
+            removeList.Remove(pos);
         }
         return removeList;
     }

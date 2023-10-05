@@ -41,3 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: BoardTile
+    uniqueID: 420436495
+    locked: 0
+  - name: Piece
+    uniqueID: 2976687075
+    locked: 0
+  - name: DraggingPiece
+    uniqueID: 2698508845
+    locked: 0

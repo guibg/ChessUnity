@@ -6,9 +6,22 @@ public class PieceController : MonoBehaviour
 {
     [NonSerialized] public IPiece piece;
     [SerializeField] private SpriteRenderer spriteRenderer;
+
+    public bool CallDebugMethod;
     
     private Vector2 initialPosition;
     private bool isDragging = false;
+
+    private void OnValidate()
+    {
+        if (!CallDebugMethod) return;
+        CallDebugMethod = false;
+        var attackingSquares = piece.GetAttackingSquares(piece);
+        foreach (var sq in attackingSquares)
+        {
+            Debug.Log(sq);
+        }
+    }
 
     public void Init(IPiece piece)
     {
@@ -37,14 +50,22 @@ public class PieceController : MonoBehaviour
         isDragging = false;
         spriteRenderer.sortingLayerName = "Piece";
         Vector2Int targetPosition = new Vector2Int((int)(transform.position.x + 0.5f), (int)(transform.position.y + 0.5f));
-        if (CheckForCastle(targetPosition)) return;
-        if (CheckForEnPassant(targetPosition)) return;
+        if(CheckForPossibleMoves(targetPosition)) return;
+        CancelMove();
+    }
+
+    private bool CheckForPossibleMoves(Vector2Int targetPosition)
+    {
+        bool isPlayerTurn = GameController.isWhiteTurn == piece.isWhite;
+        if (!isPlayerTurn) return false;
+        if (CheckForCastle(targetPosition)) return true;
+        if (CheckForEnPassant(targetPosition)) return true;
         if (isLegalMove(targetPosition))
         {
             Move(targetPosition);
-            return;
+            return true;
         }
-        CancelMove();
+        return false;
     }
 
     private bool CheckForEnPassant(Vector2Int targetPosition)
@@ -61,7 +82,7 @@ public class PieceController : MonoBehaviour
     private void EnPassant(Vector2Int targetPosition)
     {
         Vector2Int takenPiecePosition = new Vector2Int(targetPosition.x, piece.position.y);
-        GameController.pieces[takenPiecePosition.x, takenPiecePosition.y].DestroyPiece();
+        GameController.GetPiece(takenPiecePosition).DestroyPiece();
         Move(targetPosition);
     }
 
@@ -70,7 +91,8 @@ public class PieceController : MonoBehaviour
         if (piece is not KingController kingController) return false;
         bool isLeft = targetPosition.x < piece.position.x;
         int rookX = isLeft ? 0 : 7;
-        PieceController rook = GameController.pieces[rookX, targetPosition.y];
+        Vector2Int rookPosition = new(rookX, targetPosition.y);
+        PieceController rook = GameController.GetPiece(rookPosition);
         if (kingController.CanCastle(targetPosition, piece, rook.piece))
         {
             Castle(rook, isLeft);
@@ -91,9 +113,9 @@ public class PieceController : MonoBehaviour
         //TODO: Add check for check
         //TODO: Add check for checkmate
         //TODO: Add check for stalemate
-        if (GameController.isWhiteTurn != piece.isWhite || targetPosition == initialPosition) return false;
+        if (targetPosition == initialPosition) return false;
 
-        PieceController targetPiece = GameController.pieces[targetPosition.x, targetPosition.y];
+        PieceController targetPiece = GameController.GetPiece(targetPosition);
         if (targetPiece != null && targetPiece.piece.isWhite == piece.isWhite) return false;
         if (targetPiece == null && piece.CanMove(targetPosition, piece)) return true;
         if (targetPiece != null && piece.CanTake(targetPosition, piece)) return true;
@@ -102,8 +124,8 @@ public class PieceController : MonoBehaviour
 
     private void Move(Vector2Int targetPosition, bool changeTurn = true)
     {
-        if (GameController.pieces[targetPosition.x, targetPosition.y] != null)
-            GameController.pieces[targetPosition.x, targetPosition.y].DestroyPiece();
+        var targetPiece = GameController.GetPiece(targetPosition);
+        if (targetPiece != null) targetPiece.DestroyPiece();
         if (changeTurn) GameController.isWhiteTurn = !GameController.isWhiteTurn;
         GameController.pieces[targetPosition.x, targetPosition.y] = this;
         GameController.pieces[piece.position.x, piece.position.y] = null;
@@ -112,6 +134,7 @@ public class PieceController : MonoBehaviour
         initialPosition = targetPosition;
         piece.hasMoved = true;
         if (piece.type == PieceType.Pawn && targetPosition.y is 0 or 7) Promote();
+        GameController.UpdateGameState();
     }
 
     private void DestroyPiece()
