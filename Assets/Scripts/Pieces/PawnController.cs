@@ -60,7 +60,6 @@ public class PawnController : IPiece
         int deltaDistanceX = Mathf.Abs(distanceX);
         int distanceY = targetPos.y - piece.position.y;
         int directionX = Mathf.Clamp(targetPos.x - piece.position.x, -1, 1);
-        int directionY = piece.isWhite ? 1 : -1;
 
         Vector2Int otherPawnPosition = new(piece.position.x + directionX, piece.position.y);
         PieceController otherPawn = GameController.GetPiece(otherPawnPosition);
