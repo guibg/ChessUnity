@@ -21,9 +21,10 @@ public class CreatePiece : Singleton<CreatePiece>
         Vector3 piecePos = new Vector3(piece.position.x, piece.position.y, 0);
         GameObject pieceObject = GameObject.Instantiate(piecePrefab, piecePos, Quaternion.identity, transform);
         pieceObject.name = $"Piece {piece.type} {piece.position.x} {piece.position.y}";
-        pieceObject.GetComponent<PieceController>().Init(piece);
+        PieceController pieceCon = pieceObject.GetComponent<PieceController>();
+        pieceCon.Init(piece);
         pieceObject.GetComponent<SpriteRenderer>().sprite = GetSprite(piece.type, piece.isWhite);
-        GameController.pieces[piece.position.x, piece.position.y] = pieceObject.GetComponent<PieceController>();
+        GameController.SetPiece(pieceCon, piece.position);
         return pieceObject;
     }
 

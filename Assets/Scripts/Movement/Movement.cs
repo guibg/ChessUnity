@@ -15,7 +15,7 @@ public class Movement
     
     public virtual void ExecuteMovement()
     {
-        if (targetPiece != null) targetPiece.DestroyPiece();
+        if (targetPiece != null) GameController.RemovePiece(targetPiece.piece.position);
         GameController.isWhiteTurn = !GameController.isWhiteTurn;
         pieceCon.Move(targetPos);
         pieceCon.piece.hasMoved = true;
@@ -64,7 +64,6 @@ public class Movement
     
     private static Movement CheckForNormalMove(PieceController pieceCon, Vector2Int targetPos)
     {
-        //TODO: Check if the move is legal
         IPiece piece = pieceCon.piece;
         PieceController targetPiece = GameController.GetPiece(targetPos);
         if (targetPiece != null && targetPiece.piece.isWhite == piece.isWhite) return null;

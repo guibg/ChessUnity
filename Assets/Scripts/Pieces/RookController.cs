@@ -49,9 +49,8 @@ public class RookController : IPiece
             checkPos.y += directionY;
             bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
             if (isOutsideBoard) break;
-            // Debug.Log(checkPos + " " + (GameController.GetPiece(checkPos) != null));
             attackingSquares.Add(checkPos);
-        } while (GameController.GetPiece(checkPos) != null);
+        } while (GameController.GetPiece(checkPos) == null);
         return attackingSquares;
     }
 }

@@ -49,7 +49,7 @@ public class BishopController : IPiece
             bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
             if (isOutsideBoard) break;
             attackingSquares.Add(checkPos);
-        } while (GameController.GetPiece(checkPos) != null);
+        } while (GameController.GetPiece(checkPos) == null);
         return attackingSquares;
     }
 }

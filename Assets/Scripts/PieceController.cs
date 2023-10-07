@@ -45,7 +45,6 @@ public class PieceController : MonoBehaviour
     private void OnMouseUp()
     {
         isDragging = false;
-        spriteRenderer.sortingLayerName = "Piece";
         Vector2Int targetPosition = new Vector2Int((int)(transform.position.x + 0.5f), (int)(transform.position.y + 0.5f));
         if(TryMove(targetPosition)) return;
         CancelMove();
@@ -67,15 +66,14 @@ public class PieceController : MonoBehaviour
 
     public void Move(Vector2Int targetPosition)
     {
-        GameController.pieces[targetPosition.x, targetPosition.y] = this;
-        GameController.pieces[piece.position.x, piece.position.y] = null;
+        GameController.SetPiece(this, targetPosition);
+        GameController.SetPiece(null, piece.position);
         piece.position = targetPosition;
         transform.position = new Vector3(targetPosition.x, targetPosition.y, 0);
     }
 
     public void DestroyPiece()
     {
-        GameController.pieces[piece.position.x, piece.position.y] = null;
         Destroy(gameObject);
     }
 
@@ -88,6 +86,7 @@ public class PieceController : MonoBehaviour
     public void Promote()
     {
         piece = new QueenController(piece.isWhite, piece.position);
+        spriteRenderer.sortingLayerName = "Piece";
         spriteRenderer.sprite = CreatePiece.Instance.GetSprite(piece);
     }
 }
