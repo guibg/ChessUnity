@@ -3,19 +3,20 @@
 public class Movement
 {
     protected PieceController pieceCon;
+    protected PieceController targetPiece;
     protected Vector2Int targetPos;
 
-    public Movement(PieceController pieceCon, Vector2Int targetPos)
+    protected Movement(PieceController pieceCon, Vector2Int targetPos, PieceController targetPiece = null)
     {
         this.pieceCon = pieceCon;
         this.targetPos = targetPos;
+        this.targetPiece = targetPiece == null ? GameController.GetPiece(targetPos) : targetPiece;
     }
     
-    public virtual void ExecuteMovement(bool changeTurn = true)
+    public virtual void ExecuteMovement()
     {
-        var targetPiece = GameController.GetPiece(targetPos);
         if (targetPiece != null) targetPiece.DestroyPiece();
-        if (changeTurn) GameController.isWhiteTurn = !GameController.isWhiteTurn;
+        GameController.isWhiteTurn = !GameController.isWhiteTurn;
         pieceCon.Move(targetPos);
         pieceCon.piece.hasMoved = true;
         if (pieceCon.piece.type == PieceType.Pawn && targetPos.y is 0 or 7) pieceCon.Promote();
@@ -41,9 +42,9 @@ public class Movement
         int rookX = isLeft ? 0 : 7;
         Vector2Int rookPosition = new(rookX, targetPos.y);
         PieceController rook = GameController.GetPiece(rookPosition);
-        if (kingController.CanCastle(targetPos, piece, rook.piece))
+        if (rook != null && kingController.CanCastle(targetPos, piece, rook.piece))
         {
-            //return new CastleMovement(rook, isLeft);
+            return new CastleMovement(pieceCon, rook, isLeft);
         }
         return null;
     }
@@ -53,7 +54,10 @@ public class Movement
         if (pieceCon.piece is not PawnController pawnController) return null;
         if (pawnController.CanEnPassant(targetPos, pieceCon.piece))
         {
-            //return new EnPassantMovement(targetPos);
+            Vector2Int takenPiecePosition = new Vector2Int(targetPos.x, pieceCon.piece.position.y);
+            PieceController takenPiece = GameController.GetPiece(takenPiecePosition);
+            return new Movement(pieceCon, targetPos, takenPiece);
+
         }
         return null;
     }
@@ -61,10 +65,11 @@ public class Movement
     private static Movement CheckForNormalMove(PieceController pieceCon, Vector2Int targetPos)
     {
         //TODO: Check if the move is legal
-        if (pieceCon.piece.CanMove(targetPos, pieceCon.piece))
-        {
-            return new Movement(pieceCon, targetPos);
-        }
+        IPiece piece = pieceCon.piece;
+        PieceController targetPiece = GameController.GetPiece(targetPos);
+        if (targetPiece != null && targetPiece.piece.isWhite == piece.isWhite) return null;
+        if (targetPiece == null && piece.CanMove(targetPos, piece)) return new Movement(pieceCon, targetPos);
+        if (targetPiece != null && piece.CanTake(targetPos, piece)) return new Movement(pieceCon, targetPos, targetPiece);
         return null;
     }
 }
