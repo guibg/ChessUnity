@@ -2,9 +2,9 @@
 
 public class Movement
 {
-    protected PieceController pieceCon;
-    protected PieceController targetPiece;
-    protected Vector2Int targetPos;
+    public PieceController pieceCon;
+    public PieceController targetPiece;
+    public Vector2Int targetPos;
 
     protected Movement(PieceController pieceCon, Vector2Int targetPos, PieceController targetPiece = null)
     {
@@ -13,24 +13,34 @@ public class Movement
         this.targetPiece = targetPiece == null ? GameController.GetPiece(targetPos) : targetPiece;
     }
     
-    public virtual void ExecuteMovement()
+    public virtual void ExecuteMovement(bool isSimulated = false)
     {
         if (targetPiece != null) GameController.RemovePiece(targetPiece.piece.position);
         GameController.isWhiteTurn = !GameController.isWhiteTurn;
         pieceCon.Move(targetPos);
         pieceCon.piece.hasMoved = true;
         if (pieceCon.piece.type == PieceType.Pawn && targetPos.y is 0 or 7) pieceCon.Promote();
+        if(!isSimulated) GameController.UpdateGameState();
+    }
+    
+    public virtual void SimulateMovement(Movement move)
+    {
+        if (targetPiece != null) GameController.RemovePiece(targetPiece.piece.position);
+        GameController.isWhiteTurn = !GameController.isWhiteTurn;
+        pieceCon.Move(targetPos);
+        if (pieceCon.piece.type == PieceType.Pawn && targetPos.y is 0 or 7) pieceCon.Promote();
         GameController.UpdateGameState();
     }
     
     public static Movement GetMovement(PieceController pieceCon, Vector2Int targetPos)
     {
+        if(MapBounds.isPositionOutsideBoard(targetPos)) return null;
         Movement move = CheckForCastle(pieceCon, targetPos);
-        if(move != null) return move;
+        if(move is not null) return move;
         move = CheckForEnPassant(pieceCon, targetPos);
-        if(move != null) return move;
+        if(move is not null) return move;
         move = CheckForNormalMove(pieceCon, targetPos);
-        if(move != null) return move;
+        if(move is not null) return move;
         return null;
     }
 
@@ -41,6 +51,7 @@ public class Movement
         bool isLeft = targetPos.x < piece.position.x;
         int rookX = isLeft ? 0 : 7;
         Vector2Int rookPosition = new(rookX, targetPos.y);
+        if(MapBounds.isPositionOutsideBoard(rookPosition)) return null;
         PieceController rook = GameController.GetPiece(rookPosition);
         if (rook != null && kingController.CanCastle(targetPos, piece, rook.piece))
         {
@@ -70,5 +81,23 @@ public class Movement
         if (targetPiece == null && piece.CanMove(targetPos, piece)) return new Movement(pieceCon, targetPos);
         if (targetPiece != null && piece.CanTake(targetPos, piece)) return new Movement(pieceCon, targetPos, targetPiece);
         return null;
+    }
+    
+    public static bool operator ==(Movement move1, Movement move2)
+    {
+        if (move1 is null && move2 is null) return true;
+        if (move1 is null || move2 is null) return false;
+        if (move1.pieceCon != move2.pieceCon) return false;
+        if (move1.targetPos != move2.targetPos) return false;
+        return true;
+    }
+
+    public static bool operator !=(Movement move1, Movement move2)
+    {
+        if (move1 is null && move2 is null) return false;
+        if (move1 is null || move2 is null) return true;
+        if (move1.pieceCon != move2.pieceCon) return true;
+        if (move1.targetPos != move2.targetPos) return true;
+        return false;
     }
 }

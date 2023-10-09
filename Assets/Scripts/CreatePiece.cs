@@ -24,7 +24,7 @@ public class CreatePiece : Singleton<CreatePiece>
         PieceController pieceCon = pieceObject.GetComponent<PieceController>();
         pieceCon.Init(piece);
         pieceObject.GetComponent<SpriteRenderer>().sprite = GetSprite(piece.type, piece.isWhite);
-        GameController.SetPiece(pieceCon, piece.position);
+        GameController.AddPiece(pieceCon, piece.position);
         return pieceObject;
     }
 

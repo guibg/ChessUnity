@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class PieceController : MonoBehaviour
 {
@@ -14,11 +13,7 @@ public class PieceController : MonoBehaviour
     {
         if (!CallDebugMethod) return;
         CallDebugMethod = false;
-        var attackingSquares = piece.GetAttackingSquares(piece);
-        foreach (var sq in attackingSquares)
-        {
-            Debug.Log(sq);
-        }
+        GameController.UpdateGameState();
     }
 
     public void Init(IPiece piece)

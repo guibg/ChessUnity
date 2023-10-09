@@ -47,10 +47,34 @@ public class RookController : IPiece
         {
             checkPos.x += directionX;
             checkPos.y += directionY;
-            bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
-            if (isOutsideBoard) break;
+            if (MapBounds.isPositionOutsideBoard(checkPos)) break;
             attackingSquares.Add(checkPos);
         } while (GameController.GetPiece(checkPos) == null);
         return attackingSquares;
     }
+    
+    public override List<Movement> GetLegalMoves(PieceController piece)
+    {
+        List<Movement> legalMoves = new List<Movement>();
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, 1, 0));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, -1, 0));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, 0, 1));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, 0, -1));
+        return legalMoves;
+    }
+    
+    private List<Movement> GetLegalMovesInOneDirection(PieceController piece, int directionX, int directionY)
+    {
+        List<Movement> legalMoves = new List<Movement>();
+        Vector2Int checkPos = piece.piece.position;
+        do
+        {
+            checkPos.x += directionX;
+            checkPos.y += directionY;
+            Movement move = Movement.GetMovement(piece, checkPos);
+            if (move != null) legalMoves.Add(move);
+        } while (!MapBounds.isPositionOutsideBoard(checkPos));
+        return legalMoves;
+    }
+    
 }

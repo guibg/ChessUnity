@@ -19,6 +19,7 @@ public abstract class IPiece
     public virtual bool CanTake(Vector2Int targetPos, IPiece piece) { return CanMove(targetPos, piece); }
     public abstract bool isMoveLegal(Vector2Int targetPos, IPiece piece);
     public abstract List<Vector2Int> GetAttackingSquares(IPiece piece);
+    public abstract List<Movement> GetLegalMoves(PieceController piece);
     private PieceType GetPieceType()
     {
         return this switch

@@ -34,32 +34,18 @@ public class QueenController : IPiece
     public override List<Vector2Int> GetAttackingSquares(IPiece piece)
     {
         List<Vector2Int> attackingSquares = new List<Vector2Int>();
-        attackingSquares.AddRange(GetAllStraightAttackingSquares(piece));
-        attackingSquares.AddRange(GetAllDiagonalAttackingSquares(piece));
+        attackingSquares.AddRange(GetAttackingSquaresInOneDirection(piece, 1, 0));
+        attackingSquares.AddRange(GetAttackingSquaresInOneDirection(piece, -1, 0));
+        attackingSquares.AddRange(GetAttackingSquaresInOneDirection(piece, 0, 1));
+        attackingSquares.AddRange(GetAttackingSquaresInOneDirection(piece, 0, -1));
+        attackingSquares.AddRange(GetAttackingSquaresInOneDirection(piece, 1, 1));
+        attackingSquares.AddRange(GetAttackingSquaresInOneDirection(piece, 1, -1));
+        attackingSquares.AddRange(GetAttackingSquaresInOneDirection(piece, -1, 1));
+        attackingSquares.AddRange(GetAttackingSquaresInOneDirection(piece, -1, -1));
         return attackingSquares;
     }
     
-    private List<Vector2Int> GetAllStraightAttackingSquares(IPiece piece)
-    {
-        List<Vector2Int> attackingSquares = new List<Vector2Int>();
-        attackingSquares.AddRange(GetStraightAttackingSquares(piece, 1, 0));
-        attackingSquares.AddRange(GetStraightAttackingSquares(piece, -1, 0));
-        attackingSquares.AddRange(GetStraightAttackingSquares(piece, 0, 1));
-        attackingSquares.AddRange(GetStraightAttackingSquares(piece, 0, -1));
-        return attackingSquares;
-    }
-    
-    private List<Vector2Int> GetAllDiagonalAttackingSquares(IPiece piece)
-    {
-        List<Vector2Int> attackingSquares = new List<Vector2Int>();
-        attackingSquares.AddRange(GetDiagonalAttackingSquares(piece, 1, 1));
-        attackingSquares.AddRange(GetDiagonalAttackingSquares(piece, 1, -1));
-        attackingSquares.AddRange(GetDiagonalAttackingSquares(piece, -1, 1));
-        attackingSquares.AddRange(GetDiagonalAttackingSquares(piece, -1, -1));
-        return attackingSquares;
-    }
-    
-    private List<Vector2Int> GetStraightAttackingSquares(IPiece piece, int directionX, int directionY)
+    private List<Vector2Int> GetAttackingSquaresInOneDirection(IPiece piece, int directionX, int directionY)
     {
         List<Vector2Int> attackingSquares = new List<Vector2Int>();
         Vector2Int checkPos = piece.position;
@@ -67,25 +53,39 @@ public class QueenController : IPiece
         {
             checkPos.x += directionX;
             checkPos.y += directionY;
-            bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
-            if (isOutsideBoard) break;
+            if (MapBounds.isPositionOutsideBoard(checkPos)) break;
             attackingSquares.Add(checkPos);
         } while (GameController.GetPiece(checkPos) == null);
         return attackingSquares;
     }
-    
-    private List<Vector2Int> GetDiagonalAttackingSquares(IPiece piece, int directionX, int directionY)
+
+    public override List<Movement> GetLegalMoves(PieceController piece)
     {
-        List<Vector2Int> attackingSquares = new List<Vector2Int>();
-        Vector2Int checkPos = piece.position;
+        List<Movement> legalMoves = new List<Movement>();
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, 1, 0));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, -1, 0));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, 0, 1));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, 0, -1));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, 1, 1));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, 1, -1));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, -1, 1));
+        legalMoves.AddRange(GetLegalMovesInOneDirection(piece, -1, -1));
+        return legalMoves;
+    }
+    
+    private List<Movement> GetLegalMovesInOneDirection(PieceController piece, int directionX, int directionY)
+    {
+        List<Movement> legalMoves = new List<Movement>();
+        Vector2Int checkPos = piece.piece.position;
         do
         {
             checkPos.x += directionX;
             checkPos.y += directionY;
-            bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
-            if (isOutsideBoard) break;
-            attackingSquares.Add(checkPos);
-        } while (GameController.GetPiece(checkPos) == null);
-        return attackingSquares;
+            if (MapBounds.isPositionOutsideBoard(checkPos)) break;
+            Movement move = Movement.GetMovement(piece, checkPos);
+            if (move != null) legalMoves.Add(move);
+        } while (true);
+        return legalMoves;
     }
+    
 }

@@ -46,10 +46,34 @@ public class BishopController : IPiece
         {
             checkPos.x += directionX;
             checkPos.y += directionY;
-            bool isOutsideBoard = checkPos.x > 7 || checkPos.y > 7 || checkPos.x < 0 || checkPos.y < 0;
-            if (isOutsideBoard) break;
+            if (MapBounds.isPositionOutsideBoard(checkPos)) break;
             attackingSquares.Add(checkPos);
         } while (GameController.GetPiece(checkPos) == null);
         return attackingSquares;
+    }
+    
+    public override List<Movement> GetLegalMoves(PieceController piece)
+    {
+        List<Movement> attackingSquares = new List<Movement>();
+        attackingSquares.AddRange(GetLegalMovesInOneDiagonal(piece, 1, 1));
+        attackingSquares.AddRange(GetLegalMovesInOneDiagonal(piece, 1, -1));
+        attackingSquares.AddRange(GetLegalMovesInOneDiagonal(piece, -1, 1));
+        attackingSquares.AddRange(GetLegalMovesInOneDiagonal(piece, -1, -1));
+        return attackingSquares;
+    }
+    
+    private List<Movement> GetLegalMovesInOneDiagonal(PieceController piece, int directionX, int directionY)
+    {
+        List<Movement> legalMovements = new List<Movement>();
+        Vector2Int checkPos = piece.piece.position;
+        do
+        {
+            checkPos.x += directionX;
+            checkPos.y += directionY;
+            if (MapBounds.isPositionOutsideBoard(checkPos)) break;
+            Movement move = Movement.GetMovement(piece, checkPos);
+            if (move != null) legalMovements.Add(move);
+        } while (GameController.GetPiece(checkPos) == null);
+        return legalMovements;
     }
 }

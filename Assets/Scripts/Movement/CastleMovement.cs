@@ -23,9 +23,9 @@ public class CastleMovement : Movement
         return new Vector2Int(isLeft ? king.piece.position.x - 2 : king.piece.position.x + 2, king.piece.position.y);
     }
     
-    public override void ExecuteMovement()
+    public override void ExecuteMovement(bool isSimulated = false)
     {
         rook.Move(GetRookTargetPosition());
-        base.ExecuteMovement();
+        base.ExecuteMovement(isSimulated: isSimulated);
     }
 }

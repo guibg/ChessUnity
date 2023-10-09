@@ -48,7 +48,8 @@ public class PawnController : IPiece
         for (int i = -1; i <= 1; i += 2)
         {
             Vector2Int square = new Vector2Int(piece.position.x + i, piece.position.y + directionY);
-            if (square.x < 0 || square.x > 7 || square.y < 0 || square.y > 7) continue;
+            bool isOutsideBoard  = square.x < 0 || square.x > 7 || square.y < 0 || square.y > 7;
+            if (isOutsideBoard) continue;
             attackingSquares.Add(square);
         }
         return attackingSquares;
@@ -69,5 +70,23 @@ public class PawnController : IPiece
         if (otherPawn.piece.isWhite == piece.isWhite) return false;
         if (pawnController.hasMovedTwiceLastTurn == false) return false;
         return true;
+    }
+    
+    public override List<Movement> GetLegalMoves(PieceController piece)
+    {
+        List<Movement> legalMovements = new List<Movement>();
+        int directionY = piece.piece.isWhite ? 1 : -1;
+        for (int i = -1; i <= 1; i++)
+        {
+            Vector2Int square = new Vector2Int(piece.piece.position.x + i, piece.piece.position.y + directionY);
+            Movement move = Movement.GetMovement(piece, square);
+            if (move != null) legalMovements.Add(move);
+        }
+        
+        Vector2Int pos = new Vector2Int(piece.piece.position.x, piece.piece.position.y + directionY * 2);
+        Movement move2 = Movement.GetMovement(piece, pos);
+        if (move2 != null) legalMovements.Add(move2);
+        
+        return legalMovements;
     }
 }

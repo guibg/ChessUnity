@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class KnightController : IPiece
@@ -41,13 +42,23 @@ public class KnightController : IPiece
     
     private List<Vector2Int> RemoveWrongPos(List<Vector2Int> attackingSquares)
     {
-        List<Vector2Int> removeList = new List<Vector2Int>();
+        List<Vector2Int> removeList = new List<Vector2Int>(attackingSquares);
         foreach (var pos in attackingSquares)
         {
-            bool isInsideBoard = pos.x < 8 && pos.y < 8 && pos.x >= 0 && pos.y >= 0;
-            if (isInsideBoard) continue;
-            removeList.Remove(pos);
+            if (MapBounds.isPositionOutsideBoard(pos)) removeList.Remove(pos);
         }
         return removeList;
+    }
+    
+    public override List<Movement> GetLegalMoves(PieceController piece)
+    {
+        List<Movement> legalMoves = new List<Movement>();
+        List<Vector2Int> attackingSquares = GetAttackingSquares(piece.piece);
+        foreach (var sq in attackingSquares)
+        {
+            Movement move = Movement.GetMovement(piece, sq);
+            if (move != null) legalMoves.Add(move);
+        }
+        return legalMoves;
     }
 }

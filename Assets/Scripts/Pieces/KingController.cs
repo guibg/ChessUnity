@@ -19,22 +19,6 @@ public class KingController : IPiece
         return false;
     }
 
-    public override List<Vector2Int> GetAttackingSquares(IPiece piece)
-    {
-        List<Vector2Int> attackingSquares = new List<Vector2Int>();
-        for (int x = piece.position.x - 1; x <= piece.position.x + 1; x++)
-        {
-            for (int y = piece.position.y - 1; y <= piece.position.y + 1; y++)
-            {
-                if (x == piece.position.x && y == piece.position.y) continue;
-                bool isOutsideBoard = x < 0 || x > 7 || y < 0 || y > 7;
-                if (isOutsideBoard) continue;
-                attackingSquares.Add(new Vector2Int(x, y));
-            }
-        }
-        return attackingSquares;
-    }
-
     public bool CanCastle(Vector2Int targetPos, IPiece king, IPiece rook)
     {
         //TODO: Add check for check
@@ -51,5 +35,40 @@ public class KingController : IPiece
             if (GameController.GetPiece(checkPos) != null) return false;
         }
         return true;
+    }
+
+    public override List<Vector2Int> GetAttackingSquares(IPiece piece)
+    {
+        List<Vector2Int> attackingSquares = new List<Vector2Int>();
+        for (int x = piece.position.x - 1; x <= piece.position.x + 1; x++)
+        {
+            for (int y = piece.position.y - 1; y <= piece.position.y + 1; y++)
+            {
+                if (x == piece.position.x && y == piece.position.y) continue;
+                if (MapBounds.isPositionOutsideBoard(piece.position)) continue;
+                attackingSquares.Add(new Vector2Int(x, y));
+            }
+        }
+        return attackingSquares;
+    }
+    
+    public override List<Movement> GetLegalMoves(PieceController piece)
+    {
+        List<Movement> legalMoves = new List<Movement>();
+        Vector2Int pos = piece.piece.position;
+        for (int x = pos.x - 1; x <= pos.x + 1; x++)
+        {
+            for (int y = pos.y - 1; y <= pos.y + 1; y++)
+            {
+                if (x == pos.x && y == pos.y) continue;
+                Movement move = Movement.GetMovement(piece, new Vector2Int(x,y));
+                if (move != null) legalMoves.Add(move);
+            }
+        }
+        Movement leftCastle = Movement.GetMovement(piece, new Vector2Int(pos.x-2,pos.y));
+        if (leftCastle != null) legalMoves.Add(leftCastle);
+        Movement rightCastle = Movement.GetMovement(piece, new Vector2Int(pos.x+2,pos.y));
+        if (rightCastle != null) legalMoves.Add(rightCastle);
+        return legalMoves;
     }
 }
