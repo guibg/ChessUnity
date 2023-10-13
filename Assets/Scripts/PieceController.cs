@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PieceController : MonoBehaviour
 {
-    [NonSerialized] public IPiece piece;
+    [NonSerialized] public Piece piece;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     public bool CallDebugMethod;
@@ -16,7 +16,7 @@ public class PieceController : MonoBehaviour
         GameController.UpdateGameState();
     }
 
-    public void Init(IPiece piece)
+    public void Init(Piece piece)
     {
         this.piece = piece;
     }
@@ -51,7 +51,7 @@ public class PieceController : MonoBehaviour
         bool isSamePosition = targetPosition == piece.position;
         if (!isPlayerTurn || isSamePosition) return false;
         Movement move = Movement.GetMovement(this, targetPosition);
-        if (move != null)
+        if (move != null && GameController.isMoveLegal(move))
         {
             move.ExecuteMovement();
             return true;

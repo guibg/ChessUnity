@@ -4,17 +4,17 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class KnightController : IPiece
+public class KnightController : Piece
 {
     public KnightController(bool isWhite, Vector2Int position) : base(isWhite, position) { }
 
-    public override bool CanMove(Vector2Int targetPos, IPiece piece, bool forced = false)
+    public override bool CanMove(Vector2Int targetPos, Piece piece, bool forced = false)
     {
         if (!forced) if (!isMoveLegal(targetPos, piece)) return false;
         return true;
     }
     
-    public override bool isMoveLegal(Vector2Int targetPos, IPiece piece)
+    public override bool isMoveLegal(Vector2Int targetPos, Piece piece)
     {
         int distanceX = Mathf.Abs(targetPos.x - piece.position.x);
         int distanceY = Mathf.Abs(targetPos.y - piece.position.y);
@@ -22,7 +22,7 @@ public class KnightController : IPiece
         return false;
     }
     
-    public override List<Vector2Int> GetAttackingSquares(IPiece piece)
+    public override List<Vector2Int> GetAttackingSquares(Piece piece)
     {
         Vector2Int pos = piece.position;
         List<Vector2Int> attackingSquares = new List<Vector2Int>()

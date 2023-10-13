@@ -2,16 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RookController : IPiece
+public class RookController : Piece
 {
     public RookController(bool isWhite, Vector2Int position) : base(isWhite, position) { }
 
-    public override bool CanMove(Vector2Int targetPos, IPiece piece, bool forced = false)
+    public override bool CanMove(Vector2Int targetPos, Piece piece, bool forced = false)
     {
         if (!forced) if (!isMoveLegal(targetPos, piece)) return false;
         return true;
     }
-    public override bool isMoveLegal(Vector2Int targetPos, IPiece piece)
+    public override bool isMoveLegal(Vector2Int targetPos, Piece piece)
     {
         int distanceX = Mathf.Abs(targetPos.x - piece.position.x);
         int distanceY = Mathf.Abs(targetPos.y - piece.position.y);
@@ -29,7 +29,7 @@ public class RookController : IPiece
         return false;
     }
     
-    public override List<Vector2Int> GetAttackingSquares(IPiece piece)
+    public override List<Vector2Int> GetAttackingSquares(Piece piece)
     {
         List<Vector2Int> attackingSquares = new List<Vector2Int>();
         attackingSquares.AddRange(GetStraightAttackingSquares(piece, 1, 0));
@@ -39,7 +39,7 @@ public class RookController : IPiece
         return attackingSquares;
     }
     
-    private List<Vector2Int> GetStraightAttackingSquares(IPiece piece, int directionX, int directionY)
+    private List<Vector2Int> GetStraightAttackingSquares(Piece piece, int directionX, int directionY)
     {
         List<Vector2Int> attackingSquares = new List<Vector2Int>();
         Vector2Int checkPos = piece.position;

@@ -2,18 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PawnController : IPiece
+public class PawnController : Piece
 {
     public bool hasMovedTwiceLastTurn = false;
     
     public PawnController(bool isWhite, Vector2Int position) : base(isWhite, position) { }
     
-    public override bool CanMove(Vector2Int targetPos, IPiece piece, bool forced = false)
+    public override bool CanMove(Vector2Int targetPos, Piece piece, bool forced = false)
     {
         if (!forced) if (!isMoveLegal(targetPos, piece)) return false;
         return true;
     }
-    public override bool CanTake(Vector2Int targetPos, IPiece piece)
+    public override bool CanTake(Vector2Int targetPos, Piece piece)
     {
         int distanceX = Mathf.Abs(targetPos.x - piece.position.x);
         int distanceY = targetPos.y - piece.position.y;
@@ -21,7 +21,7 @@ public class PawnController : IPiece
         if (distanceX == 1 && distanceY == 1) return true;
         return false;
     }
-    public override bool isMoveLegal(Vector2Int targetPos, IPiece piece)
+    public override bool isMoveLegal(Vector2Int targetPos, Piece piece)
     {
         int distanceX = targetPos.x - piece.position.x;
         int distanceY = targetPos.y - piece.position.y;
@@ -40,7 +40,7 @@ public class PawnController : IPiece
         return false;
     }
     
-    public override List<Vector2Int> GetAttackingSquares(IPiece piece)
+    public override List<Vector2Int> GetAttackingSquares(Piece piece)
     {
         List<Vector2Int> attackingSquares = new List<Vector2Int>();
         int directionY = piece.isWhite ? 1 : -1;
@@ -55,7 +55,7 @@ public class PawnController : IPiece
         return attackingSquares;
     }
 
-    public bool CanEnPassant(Vector2Int targetPos, IPiece piece)
+    public bool CanEnPassant(Vector2Int targetPos, Piece piece)
     {
         int distanceX = targetPos.x - piece.position.x;
         int deltaDistanceX = Mathf.Abs(distanceX);

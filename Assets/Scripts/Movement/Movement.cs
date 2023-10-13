@@ -16,20 +16,14 @@ public class Movement
     public virtual void ExecuteMovement(bool isSimulated = false)
     {
         if (targetPiece != null) GameController.RemovePiece(targetPiece.piece.position);
-        GameController.isWhiteTurn = !GameController.isWhiteTurn;
         pieceCon.Move(targetPos);
         pieceCon.piece.hasMoved = true;
         if (pieceCon.piece.type == PieceType.Pawn && targetPos.y is 0 or 7) pieceCon.Promote();
-        if(!isSimulated) GameController.UpdateGameState();
-    }
-    
-    public virtual void SimulateMovement(Movement move)
-    {
-        if (targetPiece != null) GameController.RemovePiece(targetPiece.piece.position);
-        GameController.isWhiteTurn = !GameController.isWhiteTurn;
-        pieceCon.Move(targetPos);
-        if (pieceCon.piece.type == PieceType.Pawn && targetPos.y is 0 or 7) pieceCon.Promote();
-        GameController.UpdateGameState();
+        if (!isSimulated)
+        {
+            GameController.isWhiteTurn = !GameController.isWhiteTurn;
+            GameController.UpdateGameState();
+        } 
     }
     
     public static Movement GetMovement(PieceController pieceCon, Vector2Int targetPos)
@@ -47,7 +41,7 @@ public class Movement
     private static Movement CheckForCastle(PieceController pieceCon, Vector2Int targetPos)
     {
         if (pieceCon.piece is not KingController kingController) return null;
-        IPiece piece = pieceCon.piece;
+        Piece piece = pieceCon.piece;
         bool isLeft = targetPos.x < piece.position.x;
         int rookX = isLeft ? 0 : 7;
         Vector2Int rookPosition = new(rookX, targetPos.y);
@@ -75,7 +69,7 @@ public class Movement
     
     private static Movement CheckForNormalMove(PieceController pieceCon, Vector2Int targetPos)
     {
-        IPiece piece = pieceCon.piece;
+        Piece piece = pieceCon.piece;
         PieceController targetPiece = GameController.GetPiece(targetPos);
         if (targetPiece != null && targetPiece.piece.isWhite == piece.isWhite) return null;
         if (targetPiece == null && piece.CanMove(targetPos, piece)) return new Movement(pieceCon, targetPos);

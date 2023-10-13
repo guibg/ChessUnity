@@ -16,7 +16,7 @@ public class CreatePiece : Singleton<CreatePiece>
     [SerializeField] private Sprite whiteKingSprite;
     [SerializeField] private Sprite blackKingSprite;
 
-    public GameObject Instantiate(IPiece piece)
+    public GameObject Instantiate(Piece piece)
     {
         Vector3 piecePos = new Vector3(piece.position.x, piece.position.y, 0);
         GameObject pieceObject = GameObject.Instantiate(piecePrefab, piecePos, Quaternion.identity, transform);
@@ -28,7 +28,7 @@ public class CreatePiece : Singleton<CreatePiece>
         return pieceObject;
     }
 
-    public Sprite GetSprite(IPiece piece)
+    public Sprite GetSprite(Piece piece)
     {
         return piece.type switch
         {

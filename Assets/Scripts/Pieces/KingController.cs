@@ -2,16 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KingController : IPiece
+public class KingController : Piece
 {
     public KingController(bool isWhite, Vector2Int position) : base(isWhite, position) { }
 
-    public override bool CanMove(Vector2Int targetPos, IPiece piece, bool forced = false)
+    public override bool CanMove(Vector2Int targetPos, Piece piece, bool forced = false)
     {
         if (forced) return true;
         return isMoveLegal(targetPos, piece);
     }
-    public override bool isMoveLegal(Vector2Int targetPos, IPiece piece)
+    public override bool isMoveLegal(Vector2Int targetPos, Piece piece)
     {
         int distanceX = Mathf.Abs(targetPos.x - piece.position.x);
         int distanceY = Mathf.Abs(targetPos.y - piece.position.y);
@@ -19,9 +19,8 @@ public class KingController : IPiece
         return false;
     }
 
-    public bool CanCastle(Vector2Int targetPos, IPiece king, IPiece rook)
+    public bool CanCastle(Vector2Int targetPos, Piece king, Piece rook)
     {
-        //TODO: Add check for check
         int distanceX = Mathf.Abs(targetPos.x - king.position.x);
         int distanceToRook = Mathf.Abs(rook.position.x - king.position.x);
         int distanceY = Mathf.Abs(targetPos.y - king.position.y);
@@ -32,12 +31,13 @@ public class KingController : IPiece
         {
             checkPosX += directionX;
             Vector2Int checkPos = new Vector2Int(checkPosX, king.position.y);
-            if (GameController.GetPiece(checkPos) != null) return false;
+            bool isAttacked = GameController.isSquareAttacked(checkPos, king.isWhite);
+            if (GameController.GetPiece(checkPos) != null || isAttacked) return false;
         }
         return true;
     }
 
-    public override List<Vector2Int> GetAttackingSquares(IPiece piece)
+    public override List<Vector2Int> GetAttackingSquares(Piece piece)
     {
         List<Vector2Int> attackingSquares = new List<Vector2Int>();
         for (int x = piece.position.x - 1; x <= piece.position.x + 1; x++)

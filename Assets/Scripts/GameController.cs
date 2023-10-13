@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class GameController
@@ -83,19 +84,21 @@ public static class GameController
             legalMoves.AddRange(pieceLegalMoves);
         }
         legalMoves = RemoveMovesThatResultInCheck(legalMoves);
-        
-        if (isWhiteTurn) whiteLegalMoves = new(legalMoves);
-        else blackLegalMoves = new(legalMoves);
-        
-        Debug.Log("White legal moves: " + whiteLegalMoves.Count);
-        foreach (var move in whiteLegalMoves)
+
+        bool hasNoLegalMoves = legalMoves.Count == 0;
+        if (isWhiteTurn)
         {
-            Debug.Log(move.pieceCon + " " + move.targetPos);
+            whiteLegalMoves = new(legalMoves);
+            bool isInCheck = isSquareAttacked(whiteKingPosition, true);
+            if(hasNoLegalMoves && isInCheck) Debug.Log("Checkmate");
+            else if(hasNoLegalMoves) Debug.Log("Stalemate");
         }
-        Debug.Log("Black legal moves: " + blackLegalMoves.Count);
-        foreach (var move in blackLegalMoves)
+        else
         {
-            Debug.Log(move.pieceCon + " " + move.targetPos);
+            blackLegalMoves = new(legalMoves);
+            bool isInCheck = isSquareAttacked(blackKingPosition, false);
+            if(hasNoLegalMoves && isInCheck) Debug.Log("Checkmate");
+            else if(hasNoLegalMoves) Debug.Log("Stalemate");
         }
     }
     
@@ -104,9 +107,9 @@ public static class GameController
         List<Movement> legalMoves = new(legalMovesWithChecks);
         foreach (Movement move in legalMovesWithChecks)
         {
-            IPiece pieceBeforeMovement = move.pieceCon.piece;
+            Piece pieceBeforeMovement = move.pieceCon.piece.Copy();
             move.ExecuteMovement(isSimulated:true);
-            Debug.Log(move.pieceCon.GetHashCode() + " 1");
+            UpdateAttackingSquares();
             if (isWhiteTurn && isSquareAttacked(whiteKingPosition, true) ||
                 !isWhiteTurn && isSquareAttacked(blackKingPosition, false))
             {
@@ -117,18 +120,33 @@ public static class GameController
         return legalMoves;
     }
     
-    private static void UndoMovement(Movement move, IPiece pieceBeforeMovement)
+    public static void UndoMovement(Movement move, Piece pieceBeforeMovement)
     {
+        move.pieceCon.Move(pieceBeforeMovement.position);
         move.pieceCon.piece = pieceBeforeMovement;
-        Debug.Log(move.pieceCon.GetHashCode() + " 2");
-        move.pieceCon.Move(move.pieceCon.piece.position);
-        if (move.targetPiece != null) AddPiece(move.targetPiece, move.targetPiece.piece.position);
-        isWhiteTurn = !isWhiteTurn;
-        UpdateAttackingSquares();
+        if (move.targetPiece != null)
+        {
+            Piece piece = move.targetPiece.piece;
+            CreatePiece.Instance.Instantiate(piece);
+        }
+        if(move is CastleMovement castleMove)
+        {
+            Vector2Int rookOriginalPosition;
+            if (castleMove.isLeft) rookOriginalPosition = new Vector2Int(0, castleMove.targetPos.y);
+            else rookOriginalPosition = new Vector2Int(7, castleMove.targetPos.y);
+            castleMove.rook.Move(rookOriginalPosition);
+            castleMove.rook.piece.hasMoved = false;
+        }
     }
     
     public static bool isSquareAttacked(Vector2Int square, bool isWhite)
     {
         return isWhite ? whiteAttackingSquares.Contains(square) : blackAttackingSquares.Contains(square);
+    }
+    
+    public static bool isMoveLegal(Movement move)
+    {
+        if (isWhiteTurn) return whiteLegalMoves.Any(movee => movee == move);
+        else return blackLegalMoves.Any(movee => movee == move);
     }
 }

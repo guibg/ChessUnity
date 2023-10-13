@@ -2,8 +2,8 @@
 
 public class CastleMovement : Movement
 {
-    private PieceController rook;
-    private bool isLeft;
+    public PieceController rook;
+    public bool isLeft;
     
     public CastleMovement(PieceController king, PieceController rook, bool isLeft) 
         : base(king, GetKingTargetPosition(king, isLeft))

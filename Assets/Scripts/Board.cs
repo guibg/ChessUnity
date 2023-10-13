@@ -9,6 +9,7 @@ public class Board : Singleton<Board>
     {
         InstantiateBoard();
         InstantiateInitialPieces();
+        GameController.UpdateGameState();
     }
 
     private void InstantiateBoard()
