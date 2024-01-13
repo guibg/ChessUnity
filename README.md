@@ -1,5 +1,6 @@
 # ChessUnity
 Chess game made with unity <br>
+-----------------
 Implemented all game mechanics, such as: <br>
 • Moving pieces <br>
 • Taking pieces <br>
