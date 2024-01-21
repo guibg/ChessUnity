@@ -13,7 +13,7 @@ public class PieceController : MonoBehaviour
     {
         if (!CallDebugMethod) return;
         CallDebugMethod = false;
-        GameController.UpdateGameState();
+        GameController.CalculateFuturePossibleMoves(4);
     }
 
     public void Init(Piece piece)
