@@ -117,7 +117,6 @@ public static class GameController
         {
             whiteLegalMoves = new HashSet<Movement>(legalMoves);
             isInCheck = isSquareAttacked(whiteKingPosition, true);
-
         }
         else
         {
@@ -136,9 +135,7 @@ public static class GameController
             Piece pieceBeforeMovement = move.pieceCon.piece.Copy();
             move.ExecuteMovement(isSimulated:true);
             UpdateAttackingSquares();
-            bool isKingInCheck = isWhiteTurn && isSquareAttacked(whiteKingPosition, true) ||
-                                 !isWhiteTurn && isSquareAttacked(blackKingPosition, false);
-            if (isKingInCheck) legalMoves.Remove(move);
+            if (isKingInCheck()) legalMoves.Remove(move);
             UndoMovement(move, pieceBeforeMovement);
         }
         return legalMoves;
@@ -174,24 +171,42 @@ public static class GameController
         else return blackLegalMoves.Any(movee => movee == move);
     }
 
-    public static void CalculateFuturePossibleMoves(int depth, bool isWhiteTurn = true)
+    private static bool isKingInCheck()
     {
-        List<Movement> legalMoves = GetCurrentLegalMoves();
-        foreach (Movement move in legalMoves)
-        {
-            Piece pieceBeforeMovement = move.pieceCon.piece.Copy();
-            move.ExecuteMovement(isSimulated:true);
-            UpdateAttackingSquares();
-            bool isKingInCheck = isWhiteTurn && isSquareAttacked(whiteKingPosition, true) ||
-                                 !isWhiteTurn && isSquareAttacked(blackKingPosition, false);
-            if (isKingInCheck) continue;
-            UndoMovement(move, pieceBeforeMovement);
-            PieceController[,] board = GetBoardAfterMove(move);
-            List<Movement> futureMoves = GetBoardLegalMoves(board, !isWhiteTurn);
-            Debug.Log("Future moves: " + futureMoves.Count);
-            if (depth > 1) CalculateFuturePossibleMoves(depth - 1, !isWhiteTurn);
-        }
+        bool isWhiteKingInCheck = isWhiteTurn && isSquareAttacked(whiteKingPosition, true);
+        bool isBlackKingInCheck = !isWhiteTurn && isSquareAttacked(blackKingPosition, false);
+        return isWhiteKingInCheck ||  isBlackKingInCheck;
     }
+
+public static void CalculateFuturePossibleMoves(int depth, bool isWhiteTurn = true)
+{
+    if (depth <= 0) return;
+
+    List<Movement> legalMoves = GetCurrentLegalMoves();
+    foreach (Movement move in legalMoves)
+    {
+        Piece pieceBeforeMovement = move.pieceCon.piece.Copy();
+        move.ExecuteMovement(isSimulated: true);
+        UpdateAttackingSquares();
+        
+        if (!isKingInCheck())
+        {
+            if (depth > 1)
+            {
+                CalculateFuturePossibleMoves(depth - 1, !isWhiteTurn);
+            }
+            else
+            {
+                PieceController[,] board = GetBoardAfterMove(move);
+                List<Movement> futureMoves = GetBoardLegalMoves(board, !isWhiteTurn);
+                Debug.Log("Future moves: " + futureMoves.Count);
+                Debug.Log("Depth reached");
+            }
+        }
+        
+        UndoMovement(move, pieceBeforeMovement);
+    }
+}
     
     private static PieceController[,] GetBoardAfterMove(Movement move)
     {

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,8 +9,8 @@ public class PawnController : Piece
     
     public override bool CanMove(Vector2Int targetPos, Piece piece, bool forced = false)
     {
-        if (!forced) if (!isMoveLegal(targetPos, piece)) return false;
-        return true;
+        bool legalMove = isMoveLegal(targetPos, piece);
+        return forced || legalMove;
     }
     public override bool CanTake(Vector2Int targetPos, Piece piece)
     {
@@ -44,7 +43,6 @@ public class PawnController : Piece
     {
         List<Vector2Int> attackingSquares = new List<Vector2Int>();
         int directionY = piece.isWhite ? 1 : -1;
-        int directionX = 1;
         for (int i = -1; i <= 1; i += 2)
         {
             Vector2Int square = new Vector2Int(piece.position.x + i, piece.position.y + directionY);

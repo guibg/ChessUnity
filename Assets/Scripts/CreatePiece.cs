@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class CreatePiece : Singleton<CreatePiece>
@@ -38,7 +39,7 @@ public class CreatePiece : Singleton<CreatePiece>
             PieceType.Bishop => piece.isWhite ? whiteBishopSprite : blackBishopSprite,
             PieceType.Queen => piece.isWhite ? whiteQueenSprite : blackQueenSprite,
             PieceType.King => piece.isWhite ? whiteKingSprite : blackKingSprite,
-            _ => null
+            _ => throw new InvalidOperationException("Unknown piece type")
         };
     }
 
@@ -52,7 +53,7 @@ public class CreatePiece : Singleton<CreatePiece>
             PieceType.Bishop => isWhite ? whiteBishopSprite : blackBishopSprite,
             PieceType.Queen => isWhite ? whiteQueenSprite : blackQueenSprite,
             PieceType.King => isWhite ? whiteKingSprite : blackKingSprite,
-            _ => null
+            _ => throw new InvalidOperationException("Unknown piece type")
         };
     }
 }

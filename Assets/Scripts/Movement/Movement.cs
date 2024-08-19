@@ -19,11 +19,9 @@ public class Movement
         pieceCon.Move(targetPos);
         pieceCon.piece.hasMoved = true;
         if (pieceCon.piece.type == PieceType.Pawn && targetPos.y is 0 or 7) pieceCon.Promote();
-        if (!isSimulated)
-        {
-            GameController.isWhiteTurn = !GameController.isWhiteTurn;
-            GameController.UpdateGameState();
-        } 
+        if (isSimulated) return;
+        GameController.isWhiteTurn = !GameController.isWhiteTurn;
+        GameController.UpdateGameState();
     }
     
     public static Movement GetMovement(PieceController pieceCon, Vector2Int targetPos)

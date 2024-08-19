@@ -7,13 +7,14 @@ public class PieceController : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     public bool CallDebugMethod;
+    public int moves;
     private bool isDragging;
 
     private void OnValidate()
     {
         if (!CallDebugMethod) return;
         CallDebugMethod = false;
-        GameController.CalculateFuturePossibleMoves(4);
+        GameController.CalculateFuturePossibleMoves(moves);
     }
 
     public void Init(Piece piece)
@@ -40,6 +41,7 @@ public class PieceController : MonoBehaviour
     private void OnMouseUp()
     {
         isDragging = false;
+        spriteRenderer.sortingLayerName = "Piece";
         Vector2Int targetPosition = new Vector2Int((int)(transform.position.x + 0.5f), (int)(transform.position.y + 0.5f));
         if(TryMove(targetPosition)) return;
         CancelMove();
